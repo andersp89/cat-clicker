@@ -2,6 +2,7 @@
 
 var model = {
 	currentCat: null,
+	adminShown: false,
 	cats: [
 		{
 			clickCount: 0,
@@ -35,6 +36,7 @@ var control = {
 
 		catListView.init();
 		catView.init();
+		adminView.init();
 	},
 
 	getCurrentCat: function() {
@@ -52,6 +54,29 @@ var control = {
 	incrementCounter: function() {
 		model.currentCat.clickCount++;
 		catView.render();
+	},
+
+	adminAreaStatus: function() {
+		return model.adminShown;
+	},
+
+	showAdminArea: function() {
+		model.adminShown = true;
+		adminView.render();
+	},
+
+	hideAdminArea: function() {
+		model.adminShown = false;
+		adminView.hide();	
+	},
+
+	updateCat: function(name, src, clicks) {
+		var currentCat = control.getCurrentCat();
+		currentCat.name = name;
+		currentCat.imgSrc = src;
+		currentCat.clickCount = clicks;
+		catView.render();
+		control.hideAdminArea();
 	}
 };
 
@@ -114,6 +139,62 @@ var catListView = {
 
 	}
 
+};
+
+var adminView = {
+	init: function() {
+		this.adminArea = $('#admin-form')[0];
+		this.adminButton = $('#admin-button')[0];
+		this.adminSaveButton = $('#save')[0];
+		this.adminCancelButton = $('#cancel')[0];
+		this.adminName = $("#name")[0];
+		this.adminSrc = $('#imgSrc')[0];
+		this.adminClicks = $('#clicks')[0];
+
+		this.adminButton.addEventListener('click', (function() {
+			if (control.adminAreaStatus() == false) {
+				return control.showAdminArea();	
+			}
+
+			if (control.adminAreaStatus() == true) {
+				return control.hideAdminArea();
+			}
+		}));
+	},
+
+	render: function() {
+		var currentCat = control.getCurrentCat();
+
+		if (control.adminAreaStatus() == true) {
+			this.adminArea.style.display = "block";
+		}
+
+		// Connect input values with current cat
+		this.adminName.value = currentCat.name;
+		this.adminSrc.value = currentCat.imgSrc;
+		this.adminClicks.value = currentCat.clickCount;
+
+		this.adminSaveButton.addEventListener('click', (function(){
+			// Get new values
+			var adminName = document.getElementById("name").value
+			var adminSrc = document.getElementById("imgSrc").value
+			var adminClicks = document.getElementById("clicks").value
+
+			return control.updateCat(adminName, adminSrc, adminClicks);
+		}));
+
+		this.adminCancelButton.addEventListener('click', (function(){
+			return control.hideAdminArea();
+		}));
+
+
+	},
+
+	hide: function() {
+		if (control.adminAreaStatus() == false) {
+			this.adminArea.style.display = "none";
+		}
+	}
 };
 
 control.init();

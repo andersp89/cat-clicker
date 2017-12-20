@@ -56,3 +56,7 @@ h3 {
 .container {
 	display: flex;
 }
+
+#admin-form {
+	display: none;
+}
